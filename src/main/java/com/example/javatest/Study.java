@@ -2,8 +2,15 @@ package com.example.javatest;
 
 public class Study {
 
+    private String name;
+
     private int limit;
     private StudyStatus status;
+
+    public Study(String name, int limit) {
+        this.name = name;
+        this.limit = limit;
+    }
 
     public Study(int limit) {
         if(limit < 10) {
@@ -18,5 +25,14 @@ public class Study {
 
     public int getLimit() {
         return limit;
+    }
+
+    @Override
+    public String toString() {
+        return "Study{" +
+                "name='" + name + '\'' +
+                ", limit=" + limit +
+                ", status=" + status +
+                '}';
     }
 }
