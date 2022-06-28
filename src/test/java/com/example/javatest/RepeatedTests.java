@@ -1,6 +1,5 @@
 package com.example.javatest;
 
-import com.example.javatest.annotation.FastTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.RepetitionInfo;
@@ -9,7 +8,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class RepeatedTests {
+class RepeatedTests {
     @DisplayName("스터디 만들기")
     @RepeatedTest(value = 10, name = "{displayName}, {currentRepetition}/{totalRepetitions}")
     // RepetitionInfo 를 인자로 받아서 몇번 쨰 인지, 총 몇번인지 알수 있다.

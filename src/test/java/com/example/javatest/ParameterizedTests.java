@@ -1,6 +1,5 @@
 package com.example.javatest;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -16,7 +15,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ParameterizedTests {
+class ParameterizedTests {
 
     // 객체를 변환하는 Converter를 구현해야 한다.
     // 이떄 사용하는 Converter는 SimpleArgumentConverter
@@ -66,6 +65,10 @@ public class ParameterizedTests {
         System.out.println("study : " + study);
     }
 
+    /*
+        여러개의 값을 특정 개수만큼 받아서 변환할 떄 사용한다.
+        이때 특정 객체로 변환이 가능하다.
+     */
     static class StudyAggregator implements ArgumentsAggregator {
         @Override
         public Object aggregateArguments(ArgumentsAccessor argumentsAccessor, ParameterContext parameterContext) throws ArgumentsAggregationException {

@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class TaggingTests {
+class TaggingTests {
 
     @FastTest
     @DisplayName("스터디 만들기 1")
