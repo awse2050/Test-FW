@@ -21,6 +21,8 @@ public class Study {
     private StudyStatus status = StudyStatus.DRAFT;
     private int limitCount;
     private String name;
+    private LocalDateTime openedDateTime;
+    private Long ownerId;
 
     public Study(String name, int limit) {
         this.limitCount = limit;
@@ -33,6 +35,5 @@ public class Study {
         }
         this.limitCount = limit;
     }
-
 
 }
