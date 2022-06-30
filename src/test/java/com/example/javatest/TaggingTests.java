@@ -2,9 +2,8 @@ package com.example.javatest;
 
 import com.example.javatest.annotation.FastTest;
 import com.example.javatest.annotation.SlowTest;
+import com.example.javatest.domain.Study;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;

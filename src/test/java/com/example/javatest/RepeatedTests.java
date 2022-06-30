@@ -1,5 +1,6 @@
 package com.example.javatest;
 
+import com.example.javatest.domain.Study;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.RepetitionInfo;
