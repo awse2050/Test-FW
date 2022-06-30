@@ -1,5 +1,7 @@
 package com.example.javatest;
 
+import com.example.javatest.domain.Study;
+import com.example.javatest.domain.StudyStatus;
 import org.junit.jupiter.api.*;
 
 import java.time.Duration;

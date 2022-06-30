@@ -1,4 +1,4 @@
-package com.example.javatest;
+package com.example.javatest.domain;
 
 public enum StudyStatus {
     DRAFT
