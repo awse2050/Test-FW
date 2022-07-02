@@ -4,6 +4,7 @@ import com.example.javatest.domain.Member;
 import com.example.javatest.domain.Study;
 import com.example.javatest.domain.StudyStatus;
 import com.example.javatest.member.MemberService;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
@@ -15,10 +16,13 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.ActiveProfiles;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,6 +39,7 @@ import static org.mockito.Mockito.*;
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class) // @Mock 사용시 필요한 확장
 @Testcontainers
+@Slf4j
 class StudyServiceContainerTest {
 
     @Mock
@@ -45,12 +50,22 @@ class StudyServiceContainerTest {
 
     // static 를 사용해서 공유하여 쓰도록 한다.
     @Container // start, stop을 대신 하여 컨테이너의 라이프사이클 관리.
-    private static PostgreSQLContainer postgreSQLContainer =
-            new PostgreSQLContainer("postgres")
-                    .withDatabaseName("studytest");
+    private static GenericContainer genericContainer =
+            new GenericContainer("postgres")
+            .withEnv(Map.of("POSTGRES_DB", "studytest",
+                    "POSTGRES_PASSWORD", "studytest"))
+            .withExposedPorts(5432);
+
+    @BeforeAll
+    static void beforeAll() {
+        Slf4jLogConsumer slf4jLogConsumer = new Slf4jLogConsumer(log);
+        genericContainer.followOutput(slf4jLogConsumer);
+    }
 
     @BeforeEach
     void repositoryClearBeforeTest() {
+        System.out.println("==============");
+        System.out.println("getPort : " + genericContainer.getMappedPort(5432));
         studyRepository.deleteAll();
         System.out.println("clear!!!");
     }
