@@ -11,9 +11,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.Optional;
 
@@ -30,6 +34,7 @@ import static org.mockito.Mockito.*;
 @SpringBootTest
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class) // @Mock 사용시 필요한 확장
+@Testcontainers
 class StudyServiceContainerTest {
 
     @Mock
@@ -39,22 +44,15 @@ class StudyServiceContainerTest {
     private StudyRepository studyRepository;
 
     // static 를 사용해서 공유하여 쓰도록 한다.
-    static PostgreSQLContainer postgreSQLContainer = new PostgreSQLContainer("postgres")
-            .withDatabaseName("studytest");
+    @Container // start, stop을 대신 하여 컨테이너의 라이프사이클 관리.
+    private static PostgreSQLContainer postgreSQLContainer =
+            new PostgreSQLContainer("postgres")
+                    .withDatabaseName("studytest");
 
-    // 첫 테스트에 컨테이너를 시작시킨다.
-    @BeforeAll
-    static void beforeAll() {
-        System.out.println("container start!!!");
-        postgreSQLContainer.start();
-        System.out.println("postgreSQLContainer.getJdbcUrl() : " + postgreSQLContainer.getJdbcUrl());
-    }
-
-    // 마지막 테스트 이후에 컨테이너를 종료시킨다.
-    @AfterAll
-    static void afterAll() {
-        System.out.println("container stop!!!");
-        postgreSQLContainer.stop();
+    @BeforeEach
+    void repositoryClearBeforeTest() {
+        studyRepository.deleteAll();
+        System.out.println("clear!!!");
     }
 
     /*
@@ -69,7 +67,7 @@ class StudyServiceContainerTest {
         Member member = new Member();
         member.setId(1L);
         member.setEmail("kkkk@naver.com");
-        Study study = new Study("sfsdf",11);
+        Study study = new Study("sfsdf", 11);
         given(memberService.findById(1L)).willReturn(Optional.of(member));
         service.createNewStudy(1L, study);
         then(memberService).should(times(1)).notify(study);
@@ -77,13 +75,13 @@ class StudyServiceContainerTest {
 
     @Test
     void createTest2() {
-        System.out.println("test....2");
+        System.out.println("test....");
         StudyService service = new StudyService(memberService, studyRepository);
         assertNotNull(service);
         Member member = new Member();
         member.setId(1L);
         member.setEmail("kkkk@naver.com");
-        Study study = new Study("sfsdf",11);
+        Study study = new Study("sfsdf", 11);
         given(memberService.findById(1L)).willReturn(Optional.of(member));
         service.createNewStudy(1L, study);
         then(memberService).should(times(1)).notify(study);
