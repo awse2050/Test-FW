@@ -14,8 +14,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.util.TestPropertyValues;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.env.Environment;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
@@ -40,6 +45,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class) // @Mock 사용시 필요한 확장
 @Testcontainers
 @Slf4j
+@ContextConfiguration(initializers = StudyServiceContainerTest.PropertyInitializer.class)
 class StudyServiceContainerTest {
 
     @Mock
@@ -47,6 +53,9 @@ class StudyServiceContainerTest {
 
     @Autowired
     private StudyRepository studyRepository;
+
+    @Autowired
+    private Environment environment;
 
     // static 를 사용해서 공유하여 쓰도록 한다.
     @Container // start, stop을 대신 하여 컨테이너의 라이프사이클 관리.
@@ -67,6 +76,7 @@ class StudyServiceContainerTest {
         System.out.println("==============");
         System.out.println("getPort : " + genericContainer.getMappedPort(5432));
         studyRepository.deleteAll();
+        System.out.println(environment.getProperty("container.port"));
         System.out.println("clear!!!");
     }
 
@@ -100,5 +110,15 @@ class StudyServiceContainerTest {
         given(memberService.findById(1L)).willReturn(Optional.of(member));
         service.createNewStudy(1L, study);
         then(memberService).should(times(1)).notify(study);
+    }
+
+    // 스프링 테스트에서 참조하기
+    static class PropertyInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+        @Override
+        public void initialize(ConfigurableApplicationContext applicationContext) {
+            // 테스트용 프로퍼티를 정의하는 코드
+            TestPropertyValues.of("container.port="+genericContainer.getMappedPort(5432))
+                    .applyTo(applicationContext.getEnvironment());
+        }
     }
 }
