@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  study-db:
+    image: postgres
+    ports:
+      - 5432:5432 # 랜덤으로 포트를 가용할 경우 이처럼 작성
+    environment:
+      POSTGRES_PASSWORD: study
+      POSTGRES_USER: study
+      POSTGRES_DB: study
