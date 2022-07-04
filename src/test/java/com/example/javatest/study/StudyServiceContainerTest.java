@@ -11,6 +11,7 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -21,12 +22,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.io.File;
+import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
 
@@ -45,38 +50,42 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class) // @Mock 사용시 필요한 확장
 @Testcontainers
 @Slf4j
-@ContextConfiguration(initializers = StudyServiceContainerTest.PropertyInitializer.class)
+//@ContextConfiguration(initializers = StudyServiceContainerTest.PropertyInitializer.class)
 class StudyServiceContainerTest {
-
     @Mock
     private MemberService memberService;
 
     @Autowired
     private StudyRepository studyRepository;
 
-    @Autowired
-    private Environment environment;
-
     // static 를 사용해서 공유하여 쓰도록 한다.
-    @Container // start, stop을 대신 하여 컨테이너의 라이프사이클 관리.
-    private static GenericContainer genericContainer =
-            new GenericContainer("postgres")
-            .withEnv(Map.of("POSTGRES_DB", "studytest",
-                    "POSTGRES_PASSWORD", "studytest"))
-            .withExposedPorts(5432);
+//    @Container // start, stop을 대신 하여 컨테이너의 라이프사이클 관리.
+//    private static GenericContainer genericContainer =
+//            new GenericContainer("postgres")
+//            .withEnv(Map.of("POSTGRES_DB", "studytest",
+//                    "POSTGRES_PASSWORD", "studytest"))
+//            .withExposedPorts(5432);
 
-    @BeforeAll
-    static void beforeAll() {
-        Slf4jLogConsumer slf4jLogConsumer = new Slf4jLogConsumer(log);
-        genericContainer.followOutput(slf4jLogConsumer);
-    }
+
+//    @Value("${container.port}")
+//    private int port;
+
+    @Container
+    private static DockerComposeContainer composeContainer =
+            new DockerComposeContainer(new File("src/test/resources/docker-compose.yml"))
+                    .withExposedService("study-db", 5432,
+                            Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(30)));
+
+//    @BeforeAll
+//    static void beforeAll() {
+//        Slf4jLogConsumer slf4jLogConsumer = new Slf4jLogConsumer(log);
+//        genericContainer.followOutput(slf4jLogConsumer);
+//    }
 
     @BeforeEach
     void repositoryClearBeforeTest() {
         System.out.println("==============");
-        System.out.println("getPort : " + genericContainer.getMappedPort(5432));
         studyRepository.deleteAll();
-        System.out.println(environment.getProperty("container.port"));
         System.out.println("clear!!!");
     }
 
@@ -113,12 +122,13 @@ class StudyServiceContainerTest {
     }
 
     // 스프링 테스트에서 참조하기
-    static class PropertyInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-        @Override
-        public void initialize(ConfigurableApplicationContext applicationContext) {
-            // 테스트용 프로퍼티를 정의하는 코드
-            TestPropertyValues.of("container.port="+genericContainer.getMappedPort(5432))
-                    .applyTo(applicationContext.getEnvironment());
-        }
-    }
+//    static class PropertyInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+//        @Override
+//        public void initialize(ConfigurableApplicationContext applicationContext) {
+//            System.out.println("init!!!!!!!" + composeContainer);
+//            // 테스트용 프로퍼티를 정의하는 코드
+//            TestPropertyValues.of("container.port="+composeContainer.getServicePort("study-db", 5432))
+//                    .applyTo(applicationContext.getEnvironment());
+//        }
+//    }
 }
